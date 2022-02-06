@@ -1,3 +1,11 @@
+"""
+	SIS tools package for julia
+
+	Author: 	Chris Stempinski
+	File:       File.jl
+	
+	TODO description
+"""
 module File
 
 using DataFrames, CSV
@@ -94,7 +102,7 @@ end
 export getRnsAndShift
 """
 
-getRnsAndShift(Vs, Is)
+    getRnsAndShift(Vs, Is)
 
 """
 function getRnsAndShift(Vs, Is)

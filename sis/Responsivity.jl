@@ -1,4 +1,13 @@
 """
+	SIS tools package for julia
+
+	Author: 	Chris Stempinski
+	File:       Responsivity.jl
+	
+	TODO description
+"""
+
+"""
     Responsivity(P, Vₒ)
 
 Computes the responsivity ΔIdc/P(Vₒ) at specified bias point Vₒ.

@@ -1,8 +1,22 @@
+"""
+	SIS tools package for julia
+
+	Author: 	Chris Stempinski
+	File:       Currents.jl
+	
+	TODO description
+"""
 module Currents
 
 using SpecialFunctions, Richardson, Data
 
 export Idc
+"""
+    Idc(DCₒ::DCₒData, nVₒ)
+
+Un-pumped DC current
+
+"""
 function Idc(DCₒ::DCₒData, nVₒ)
 
     if (nVₒ > 1.6)
@@ -16,6 +30,12 @@ function Idc(DCₒ::DCₒData, nVₒ)
 end
 
 export Ikk
+"""
+    Ikk(DCₒ::DCₒData, nVₒ)
+
+Kramers-Kronig transform
+
+"""
 function Ikk(DCₒ::DCₒData, nVₒ)
 
     return DCₒ.Ikki(nVₒ);

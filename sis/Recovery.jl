@@ -1,3 +1,11 @@
+"""
+	SIS tools package for julia
+
+	Author: 	Chris Stempinski
+	File:       Recovery.jl
+	
+	TODO description
+"""
 module Recovery
 
 using Roots, Optim, Currents, Data
@@ -90,7 +98,7 @@ function recover_nVLO(DCₒ::DCₒData, DC::DCData, nZLO, nVs, nVωs)
 
 end
 
-export recoverVω
+export recover_nVω
 """
     recover_nVω(nVLO, nZLO, nVₒ)
 
@@ -122,7 +130,7 @@ function performRecovery(DCₒ::DCₒData, DC::DCData, fitVs, fitIs)
     
     println("\nFound nZLO = ", nZLO);
     
-    nVLO = recover_nVLO(DCₒ, DC, nZLO, nVs, nVωs)
+    nVLO = recover_nVLO(DCₒ, DC, nZLO, fitVs, nVωs)
     
     println("\nFound nVLO = ", nVLO)
 

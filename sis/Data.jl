@@ -1,3 +1,11 @@
+"""
+    SIS tools package for julia
+
+    Author: 	Chris Stempinski
+    File:       Data.jl
+
+    TODO description
+"""
 module Data
 
 using File, Interpolations, DSP, FFTW
@@ -46,7 +54,22 @@ function loadDCₒData(fileName::String)::DCₒData
     =#
     Vsk = [-100:0.005:100;]
 
-    f(nVₒ) = nIdci(nVₒ) - (nVₒ > 0 ? (nVₒ + shift2 / Ig2) : (nVₒ + shift1 / Ig1))
+#=
+    Very ugly hack until I figure out a better solution
+=#
+    function myIdc(nVₒ)
+
+        if (nVₒ > 1.6)
+            return nVₒ + shift2 / Ig2;
+        elseif (nVₒ < -1.6)
+            return nVₒ + shift1 / Ig1;
+        else
+            return nIdci(nVₒ);
+        end
+
+    end
+
+    f(nVₒ) = myIdc(nVₒ)#=nIdci(nVₒ)=# - (nVₒ > 0 ? (nVₒ + shift2 / Ig2) : (nVₒ + shift1 / Ig1))
 
     Fourier = fft(f.(Vsk))
 
@@ -67,11 +90,11 @@ export DCData
 
 struct DCData
 
-    nVs::Vector{Float64};
-    nIs::Vector{Float64};
+    nVs     ::Vector{Float64};
+    nIs     ::Vector{Float64};
 
-    ν::Float64;
-    nVₚₕ::Float64;
+    ν       ::Float64;
+    nVₚₕ     ::Float64;
 
 end
 
@@ -83,7 +106,7 @@ function loadDCData(fileName::String, DCₒ::DCₒData; ν::Float64 = 230.0)::DC
 
     nVs, nIs = normalise(upVs, upIs, DCₒ.Vg1, DCₒ.Vg2, DCₒ.Ig1, DCₒ.Ig2);
  
-    nVₚₕ = 2 * π * 6.582e-4 * ν / DCₒ.Vg2;
+    nVₚₕ = 2π * 6.582e-4 * ν / DCₒ.Vg2;
 
     return DCData(nVs, nIs, ν, nVₚₕ);
 

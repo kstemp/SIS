@@ -35,7 +35,11 @@ end
 
 export parseDCₒData
 
-function parseDCₒData(Vs::Vector{Float64}, Is::Vector{Float64})::DCₒData
+function parseDCₒData(Vs::Vector{Float64}, Is::Vector{Float64}; correctOffsets = true)::DCₒData
+
+    if correctOffsets
+        correctOffsets!(Vs, Is)
+    end
 
     Vg1, Vg2 = findVgs(Vs, Is);
 
@@ -96,7 +100,11 @@ end
 
 export parseDCData
 
-function parseDCData(Vs::Vector{Float64}, Is::Vector{Float64}, DCₒ::DCₒData; ν::Float64 = 230.0)::DCData
+function parseDCData(Vs::Vector{Float64}, Is::Vector{Float64}, DCₒ::DCₒData; ν::Float64 = 230.0, correctOffsets = true)::DCData
+
+    if correctOffsets
+        correctOffsets!(Vs, Is)
+    end
 
     nVs, nIs = normalise(Vs, Is, DCₒ.Vg1, DCₒ.Vg2, DCₒ.Ig1, DCₒ.Ig2);
  

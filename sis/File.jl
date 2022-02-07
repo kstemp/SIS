@@ -8,7 +8,7 @@
 """
 module File
 
-using Printf, DataFrames, CSV, Interpolations, Optim
+using Printf, Interpolations, Optim
 
 """
     correctOffset()
@@ -59,52 +59,6 @@ function correctOffsets!(Vs::Vector{Float64}, Is::Vector{Float64})
     Is .-= Ioffset;
 
     return Vs, Is;
-
-end
-
-export loadFile
-
-"""
-    loadFile(fileName, Vcutoff = 5)
-
-This is a helper method that SHOULD NOT in general be used when performing analysis
-on arbitrary experimental data, as it makes a number of assumptions about the 
-structure of the CSV file. 
-
-"""
-function loadFile(fileName; Vcol = 4, Icol = 5, Vcutoff = 5, correctOffsets = true)
-    
-    df = DataFrame(CSV.File(fileName))
-
-    Vs = df[!, Vcol];
-    Is = df[!, Icol];
-
-    upsweepEnd = upsweepStart = 0;
-    for i in 1:length(Vs)
-        if (Vs[i] > Vcutoff)
-            upsweepEnd = i;
-            break;
-        end
-    end
-
-    for i in length(Vs):-1:1
-        if (Vs[i] < -Vcutoff)
-            upsweepStart = i;
-            break;
-        end
-    end
-
-    @show upsweepStart
-    @show upsweepEnd
-
-    Vs_up = vcat(Vs[upsweepStart:end], Vs[1:upsweepEnd]);
-    Is_up = vcat(Is[upsweepStart:end], Is[1:upsweepEnd]);
-    
-    if correctOffsets
-        correctOffsets!(Vs_up, Is_up)
-    end
-
-    return Vs_up, Is_up
 
 end
 

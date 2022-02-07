@@ -1,6 +1,7 @@
 plots.jl
 analysis.jl
 example.jl
+fileload.jl
 *.jpg
 *.pdf
 data/

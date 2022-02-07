@@ -30,8 +30,8 @@ function loadFile(fileName; Vcol = 2, Icol = 3, Vcutoff = 5, smooth = true)
         end
     end
 
-    @show upsweepStart
-    @show upsweepEnd
+    #=@show upsweepStart
+    @show upsweepEnd=#
 
     Vs_up = vcat(Vs[upsweepStart:end], Vs[1:upsweepEnd]);
     Is_up = vcat(Is[upsweepStart:end], Is[1:upsweepEnd]);

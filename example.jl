@@ -14,14 +14,11 @@ using Data, Currents, Recovery, File, Plots
 fileName(ω, mm) = string("data/IV_", ω, "GHz_-30mA_", mm, "um.csv")
 
 upVs, upIs = loadFile(fileName("230", "0_00"); Vcol = 2, Icol = 3);
-
 DCₒ1 = parseDCₒData(upVs, upIs);
 
 upVsp, upIsp =  loadFile(fileName("230", "0_40"); Vcol = 2, Icol = 3);
-
 DC1 = parseDCData(upVsp, upIsp, DCₒ1; ν = 230.0)
 
-#=
 # perform impedance recovery=#
 fitVs, fitIs = File.filter(DC1.nVs, DC1.nIs, 2 / DCₒ1.Vg2, 2.54 / DCₒ1.Vg2);
 

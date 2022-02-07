@@ -10,6 +10,7 @@ module File
 
 using Printf, Interpolations, Optim
 
+export correctOffsets!
 """
     correctOffset()
 
@@ -42,7 +43,7 @@ function correctOffsets!(Vs::Vector{Float64}, Is::Vector{Float64})
         sum((I(V) - mirror_I(V))^2 for V in [-1:0.1:1;])
         
     end
-    
+
     f(x::Vector) = error(x[1], x[2]);
 
     res = Optim.optimize(f, [0.1, 0.1], NelderMead());
@@ -126,8 +127,8 @@ function getRnsAndShift(Vs, Is)
         return s, i
     end
 
-    slope1, shift1 = slope_intercept(Is[500], Is[1], Vs[500], Vs[1])
-    slope2, shift2 = slope_intercept(Is[end], Is[end-500], Vs[end], Vs[end-500])
+    slope1, shift1 = slope_intercept(Is[100], Is[1], Vs[100], Vs[1])
+    slope2, shift2 = slope_intercept(Is[end], Is[end-100], Vs[end], Vs[end-100])
 
     return 1 / slope1, shift1, 1 / slope2, shift2
 

@@ -43,7 +43,7 @@ function parseDCₒData(Vs::Vector{Float64}, Is::Vector{Float64}; correctOffsets
 
     Vg1, Vg2 = findVgs(Vs, Is);
 
-    Rn1, shift1, Rn2, shift2 = getRnsAndShift(upVs, upIs)
+    Rn1, shift1, Rn2, shift2 = getRnsAndShift(Vs, Is)
 
     Ig1 = abs(Vg1) / Rn1;
     Ig2 = Vg2 / Rn2;

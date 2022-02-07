@@ -4,23 +4,26 @@ This is a "software package" for analysis experimental I-V characteristics of a 
 
 ## Features
 
-* TODO
+* parsing experimental "un-pumped" I-V characteristics of a junction: correcting for current and voltage offsets, finding gap voltage and normal resistance, normalising the data
+* parsing experimental "pumped" I-V characteristics of a junction
+* recovering impedance and Thevening voltage of the embedding circuit
+* computing the junction responsivity, both assuming all available power is transferred to the junction as well as taking into account the embedding circuit
 
 ## Example usage - performing impedance recovery
 
+Vs (Vsp) and Is (Vsp) are vectors containing un-pumped (pumped) voltage and current experimental data, respectively.
 ```
 using Data, Currents, Recovery, File, Plots
 
-# load un-pumped and pumped I-V curves
-DCₒ = loadDCₒData("dciv.csv"; Vcol = 1, Icol = 2);
+DCₒ = parseDCₒData(Vs, Is);
 
-DC = loadDCData("f230.csv", DCₒ; ν = 230.0, Vcol = 1, Icol = 2)
+DC = parseDCData(Vsp, Isp, DCₒ; ν = 230)
 
 fitVs, fitIs = File.filter(DC.nVs, DC.nIs, 0.75, 0.97);
 
 nZLO, nVLO = performRecovery(DCₒ, DC, fitVs, fitIs);
 
-plot(DC.nVs, DC.nIs, xlims = (0, 2), ylims=(0, 2))
+plot(DC.nVs, DC.nIs, xlims = (0, 2), ylims=(0, 2), label = "Experimental data")
 plot!([0:0.01:2;], Vₒ -> Ip(DCₒ, DC, Vₒ, recover_nVω(DCₒ, DC, nVLO, nZLO, Vₒ)), label = "Recovered I-V")
 ```
 

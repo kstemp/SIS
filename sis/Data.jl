@@ -14,8 +14,8 @@ export DCₒData
 
 struct DCₒData
 
-    nVs::Vector{Float64};
-    nIs::Vector{Float64};
+    nVs     ::Vector{Float64};
+    nIs     ::Vector{Float64};
 
     Vg1     ::Float64;
     Vg2     ::Float64;
@@ -50,13 +50,13 @@ function loadDCₒData(fileName::String; Vcol = 4, Icol = 5)::DCₒData
     nIdci = LinearInterpolation(nVs, nIs);
 
     #=
-    KK
+        compute the Kramers-Kronig transform
+
+        TODO: refactor into separate method
+        TODO: get rid of the myIdc function, it's a duplicate
     =#
     Vsk = [-100:0.005:100;]
 
-#=
-    Very ugly hack until I figure out a better solution
-=#
     function myIdc(nVₒ)
 
         if (nVₒ > 1.6)
@@ -69,14 +69,11 @@ function loadDCₒData(fileName::String; Vcol = 4, Icol = 5)::DCₒData
 
     end
 
-    f(nVₒ) = myIdc(nVₒ)#=nIdci(nVₒ)=# - (nVₒ > 0 ? (nVₒ + shift2 / Ig2) : (nVₒ + shift1 / Ig1))
+    f(nVₒ) = myIdc(nVₒ) - (nVₒ > 0 ? (nVₒ + shift2 / Ig2) : (nVₒ + shift1 / Ig1))
 
     Fourier = fft(f.(Vsk))
 
-    #for i in eachindex(Vsk)
-    #    Fourier[i] *= -im * sign(Vsk[i])
     @. Fourier *= (-im * sign(Vsk))
-    #end
 
     Ikks = real(ifft(Fourier));
 

@@ -42,7 +42,7 @@ function correctOffsets!(Vs::Vector{Float64}, Is::Vector{Float64})
         sum((I(V) - mirror_I(V))^2 for V in [-1:0.1:1;])
         
     end
-
+    
     f(x::Vector) = error(x[1], x[2]);
 
     res = Optim.optimize(f, [0.1, 0.1], NelderMead());

@@ -33,19 +33,18 @@ struct DCₒData
 
 end
 
-export loadDCₒData
+export parseDCₒData
 
-function loadDCₒData(fileName::String; Vcol = 4, Icol = 5)::DCₒData
+function parseDCₒData(Vs::Vector{Float64}, Is::Vector{Float64})::DCₒData
 
-    upVs, upIs = loadFile(fileName; Vcol = Vcol, Icol = Icol)
-    Vg1, Vg2 = findVgs(upVs, upIs);
+    Vg1, Vg2 = findVgs(Vs, Is);
 
     Rn1, shift1, Rn2, shift2 = getRnsAndShift(upVs, upIs)
 
     Ig1 = abs(Vg1) / Rn1;
     Ig2 = Vg2 / Rn2;
 
-    nVs, nIs = normalise(upVs, upIs, Vg1, Vg2, Ig1, Ig2);
+    nVs, nIs = normalise(Vs, Is, Vg1, Vg2, Ig1, Ig2);
 
     nIdci = LinearInterpolation(nVs, nIs);
 
@@ -95,13 +94,11 @@ struct DCData
 
 end
 
-export loadDCData
+export parseDCData
 
-function loadDCData(fileName::String, DCₒ::DCₒData; ν::Float64 = 230.0, Vcol = 4, Icol = 5)::DCData
+function parseDCData(Vs::Vector{Float64}, Is::Vector{Float64}, DCₒ::DCₒData; ν::Float64 = 230.0)::DCData
 
-    upVs, upIs = loadFile(fileName; Vcol = Vcol, Icol = Icol)
-
-    nVs, nIs = normalise(upVs, upIs, DCₒ.Vg1, DCₒ.Vg2, DCₒ.Ig1, DCₒ.Ig2);
+    nVs, nIs = normalise(Vs, Is, DCₒ.Vg1, DCₒ.Vg2, DCₒ.Ig1, DCₒ.Ig2);
  
     nVₚₕ = 2π * 6.582e-4 * ν / DCₒ.Vg2;
 

@@ -8,7 +8,7 @@
 """
 module Recovery
 
-using Roots, Optim, Currents, Data
+using Printf, Roots, Optim, Currents, Data
 
 """
     recover_nVωs(nVs, nIs, guess = 1.0)
@@ -25,7 +25,7 @@ function recover_nVωs(DCₒ::DCₒData, DC::DCData, fitVs, fitIs)
         nVω = find_zero(nVω -> Ip(DCₒ, DC, nVₒ, nVω) - nI, 0.5)
         push!(nVωs, nVω)
 
-        @show nVₒ, nI, nVω
+        #@show nVₒ, nI, nVω
     end
 
     return nVωs;
@@ -124,17 +124,19 @@ Helper method for recovering the embedding impedance given a set of bias points
 """
 function performRecovery(DCₒ::DCₒData, DC::DCData, fitVs, fitIs)
 
+    @printf("Performing impedance recovery...\n");
+
     nVωs = recover_nVωs(DCₒ, DC, fitVs, fitIs);
 
     nZLO = find_nZLO(DCₒ, DC, 1 - 0.5im, fitVs, nVωs)
     
-    println("\nFound nZLO = ", nZLO);
+    @printf("\tFound nZLO: %g + %gi\n", real(nZLO), imag(nZLO));
     
     nVLO = recover_nVLO(DCₒ, DC, nZLO, fitVs, nVωs)
     
-    println("\nFound nVLO = ", nVLO)
+    @printf("\tFound nVLO: %g\n", nVLO);
 
-    return nZLO, nVLO
+    return nZLO, nVLO;
 
 end
 

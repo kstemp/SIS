@@ -8,17 +8,71 @@
 """
 module File
 
-using DataFrames, CSV
+using Printf, DataFrames, CSV, Interpolations, Optim
+
+"""
+    correctOffset()
+
+TODO 
+
+"""
+function correctOffsets!(Vs::Vector{Float64}, Is::Vector{Float64})
+
+    println("Correcting offset...")
+
+    #=  
+        the experiment data has certain offset, which means that
+        the original and reflected I-V characteristics won't overlap.
+        We calculate what is the error between these two curves, 
+        and find Voffset, Ioffset for which it is smallest 
+    =#
+
+    function error(Voffset, Ioffset)
+
+        myVs = Vs .- Voffset;
+        myIs = Is .- Ioffset;
+        
+        # mirror the voltages and currents through the origin
+        mirror_Vs = -reverse(copy(myVs))
+        mirror_Is = -reverse(copy(myIs))
+
+        mirror_I = LinearInterpolation(mirror_Vs, mirror_Is);
+        I = LinearInterpolation(myVs, myIs);
+
+        sum((I(V) - mirror_I(V))^2 for V in [-1:0.1:1;])
+        
+    end
+
+    f(x::Vector) = error(x[1], x[2]);
+
+    res = Optim.optimize(f, [0.1, 0.1], NelderMead());
+    min = Optim.minimizer(res);
+
+    Voffset = min[1]
+    Ioffset = min[2]
+
+    @printf("Found:\n\tVoffset: %g\n", Voffset)
+    @printf("\tIoffset: %g\n", Ioffset)
+    @printf("\n\tError with offsets: %g, without: %g\n", error(Voffset, Ioffset), error(0, 0))
+
+    Vs .-= Voffset;
+    Is .-= Ioffset;
+
+    return Vs, Is;
+
+end
 
 export loadFile
 
 """
     loadFile(fileName, Vcutoff = 5)
 
-Loads the specified CSV and takes ONLY THE UPSWEEP part
+This is a helper method that SHOULD NOT in general be used when performing analysis
+on arbitrary experimental data, as it makes a number of assumptions about the 
+structure of the CSV file. 
 
 """
-function loadFile(fileName, Vcol = 4, Icol = 5, Vcutoff = 5)
+function loadFile(fileName; Vcol = 4, Icol = 5, Vcutoff = 5, correctOffsets = true)
     
     df = DataFrame(CSV.File(fileName))
 
@@ -27,14 +81,14 @@ function loadFile(fileName, Vcol = 4, Icol = 5, Vcutoff = 5)
 
     upsweepEnd = upsweepStart = 0;
     for i in 1:length(Vs)
-        if (#=Vs[i] > Vs[i + 1] &&=# Vs[i] > Vcutoff)
+        if (Vs[i] > Vcutoff)
             upsweepEnd = i;
             break;
         end
     end
 
     for i in length(Vs):-1:1
-        if (#=Vs[i] < Vs[i + 1]=# Vs[i] < -Vcutoff)
+        if (Vs[i] < -Vcutoff)
             upsweepStart = i;
             break;
         end
@@ -45,6 +99,10 @@ function loadFile(fileName, Vcol = 4, Icol = 5, Vcutoff = 5)
 
     Vs_up = vcat(Vs[upsweepStart:end], Vs[1:upsweepEnd]);
     Is_up = vcat(Is[upsweepStart:end], Is[1:upsweepEnd]);
+    
+    if correctOffsets
+        correctOffsets!(Vs_up, Is_up)
+    end
 
     return Vs_up, Is_up
 
@@ -131,7 +189,6 @@ a condition satisfied by the elements by the first array.
 
 """
 function filter(Vs, Is, low = 0.6, high = 0.95)
-
     filteredVs = [Vs[i] for i=eachindex(Vs) if (Vs[i] <= high && Vs[i] >= low)]
     filteredIs = [Is[i] for i=eachindex(Is) if (Vs[i] <= high && Vs[i] >= low)]
 

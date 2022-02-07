@@ -35,9 +35,9 @@ end
 
 export loadDCₒData
 
-function loadDCₒData(fileName::String)::DCₒData
+function loadDCₒData(fileName::String; Vcol = 4, Icol = 5)::DCₒData
 
-    upVs, upIs = loadFile(fileName, 4, 5)
+    upVs, upIs = loadFile(fileName; Vcol = Vcol, Icol = Icol)
     Vg1, Vg2 = findVgs(upVs, upIs);
 
     Rn1, shift1, Rn2, shift2 = getRnsAndShift(upVs, upIs)
@@ -100,9 +100,9 @@ end
 
 export loadDCData
 
-function loadDCData(fileName::String, DCₒ::DCₒData; ν::Float64 = 230.0)::DCData
+function loadDCData(fileName::String, DCₒ::DCₒData; ν::Float64 = 230.0, Vcol = 4, Icol = 5)::DCData
 
-    upVs, upIs = loadFile(fileName, 4, 5)
+    upVs, upIs = loadFile(fileName; Vcol = Vcol, Icol = Icol)
 
     nVs, nIs = normalise(upVs, upIs, DCₒ.Vg1, DCₒ.Vg2, DCₒ.Ig1, DCₒ.Ig2);
  
@@ -113,7 +113,3 @@ function loadDCData(fileName::String, DCₒ::DCₒData; ν::Float64 = 230.0)::DC
 end
 
 end
-
-
-
-

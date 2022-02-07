@@ -1,3 +1,5 @@
 plots.jl
+analysis.jl
 *.jpg
 *.pdf
+data/

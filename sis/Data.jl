@@ -48,7 +48,7 @@ function parseDCₒData(Vs::Vector{Float64}, Is::Vector{Float64}; correctOffsets
     Ig1 = abs(Vg1) / Rn1;
     Ig2 = Vg2 / Rn2;
 
-    @printf("Parameters: \nGap voltages:\n\t\t%.2f mV (Vₒ<0)\n\t\t%.2f mV(Vₒ>0)\nNormal resistances:\n\t\t%.2f Ω (Vₒ<0)\n\t\t%.2f Ω(Vₒ>0)\n", Vg1, Vg2, Rn1, Rn2)
+    @printf("Parameters: \nGap voltages:\n\t\t%.2f mV (Vₒ<0)\n\t\t%.2f mV (Vₒ>0)\nNormal resistances:\n\t\t%.2f Ω (Vₒ<0)\n\t\t%.2f Ω (Vₒ>0)\n", Vg1, Vg2, Rn1, Rn2)
 
     nVs, nIs = normalise(Vs, Is, Vg1, Vg2, Ig1, Ig2);
 

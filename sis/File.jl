@@ -105,9 +105,6 @@ function findVgs(Vs, Is)
     il = argmin(dynR[1:half]);
     ir = argmin(dynR[half:end - 100]) + (half - 1); # to avoid problems with the weird bullshit on the far end
 
-    @show il
-    @show ir
-
     return Vs[il], Vs[ir];
 
 end

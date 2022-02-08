@@ -3,7 +3,7 @@ using File, DataFrames, CSV, Loess
 """
     loadFile(fileName, Vcutoff = 5)
 
-This is a helper method that SHOULD NOT in general be used when performing analysis
+This is a sample helper method. It SHOULD NOT in general be used when performing analysis
 on arbitrary experimental data, as it makes a number of assumptions about the 
 structure of the CSV file. 
 
@@ -37,9 +37,8 @@ function loadFile(fileName; Vcol = 2, Icol = 3, Vcutoff = 5, smooth = true)
     Is_up = vcat(Is[upsweepStart:end], Is[1:upsweepEnd]);
 
     if (smooth)
-
-    # Loess smoothing
-        model = loess(Vs_up, Is_up, span=0.01)
+        # Loess smoothing
+        model = loess(Vs_up, Is_up, span = 0.01)
         us = range(extrema(Vs_up)...; step = 0.01)
         vs = predict(model, us)
 

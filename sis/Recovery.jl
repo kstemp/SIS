@@ -130,12 +130,12 @@ function performRecovery(DCₒ::DCₒData, DC::DCData, fitVs, fitIs)
 
     nZLO = find_nZLO(DCₒ, DC, 1 - 0.5im, fitVs, nVωs)
     
-    @printf("\tFound nZLO: %g + %gi\n", real(nZLO), imag(nZLO));
-    
     nVLO = recover_nVLO(DCₒ, DC, nZLO, fitVs, nVωs)
-    
-    @printf("\tFound nVLO: %g\n", nVLO);
 
+    @printf("Found (normalised):\n\tnZemb: %g + %gi\n\tnVLO = %g\n", real(nZLO), imag(nZLO), nVLO);
+    
+    @printf("Found:\n\tZemb: (%g + %gi) Ω\n\tVLO = %g mV\n", DCₒ.Rn2 * real(nZLO), DCₒ.Rn2 * imag(nZLO), DCₒ.Vg2 * nVLO);
+    
     return nZLO, nVLO;
 
 end

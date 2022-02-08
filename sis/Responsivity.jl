@@ -10,6 +10,7 @@ module Responsivity
 
 using Data, Currents, Recovery
 
+export responsivity
 """
     Resp_actual(nVₒ, nVω, nZLO, nVLO)
 

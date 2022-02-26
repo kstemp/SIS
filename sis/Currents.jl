@@ -19,9 +19,9 @@ Un-pumped DC current
 """
 function Idc(DCₒ::DCₒData, nVₒ)
 
-    if (nVₒ > 1.6)
+    if (nVₒ > DCₒ.cutoff)
         return nVₒ + DCₒ.shift2 / DCₒ.Ig2;
-    elseif (nVₒ < -1.6)
+    elseif (nVₒ < -DCₒ.cutoff)
         return nVₒ + DCₒ.shift1 / DCₒ.Ig1;
     else
         return DCₒ.nIdci(nVₒ);

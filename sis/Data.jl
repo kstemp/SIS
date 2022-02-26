@@ -28,6 +28,8 @@ struct DCₒData
     Ig1     ::Float64;
     Ig2     ::Float64;
 
+    cutoff  ::Float64;
+
     nIdci;
     Ikki;
 
@@ -35,7 +37,7 @@ end
 
 export parseDCₒData
 
-function parseDCₒData(Vs::Vector{Float64}, Is::Vector{Float64}; correctOffsets = true)::DCₒData
+function parseDCₒData(Vs::Vector{Float64}, Is::Vector{Float64}; correctOffsets = true, cutoff = 1.6)::DCₒData
 
     if correctOffsets
         correctOffsets!(Vs, Is)
@@ -64,9 +66,9 @@ function parseDCₒData(Vs::Vector{Float64}, Is::Vector{Float64}; correctOffsets
 
     function myIdc(nVₒ)
 
-        if (nVₒ > 1.6)
+        if (nVₒ > cutoff)
             return nVₒ + shift2 / Ig2;
-        elseif (nVₒ < -1.6)
+        elseif (nVₒ < -cutoff)
             return nVₒ + shift1 / Ig1;
         else
             return nIdci(nVₒ);
@@ -84,7 +86,7 @@ function parseDCₒData(Vs::Vector{Float64}, Is::Vector{Float64}; correctOffsets
 
     Ikki = LinearInterpolation(Vsk, Ikks)
 
-    return DCₒData(nVs, nIs, Vg1, Vg2, Rn1, shift1, Rn2, shift2, Ig1, Ig2, nIdci, Ikki);
+    return DCₒData(nVs, nIs, Vg1, Vg2, Rn1, shift1, Rn2, shift2, Ig1, Ig2, cutoff, nIdci, Ikki);
 
 end
 

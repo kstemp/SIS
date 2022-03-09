@@ -9,58 +9,181 @@
 
 push!(LOAD_PATH, "C:/Users/Chris/Projects/SIS/sis")
 include("loadfile.jl")
-using Data, Currents, Recovery, File, Plots, Responsivity
+using Data, Currents, Recovery, File, Plots
 
-#fileName(ω, mm) = string("data/IV_", ω, "GHz_-30mA_", mm, "um.csv")
+using Optim
 
-#=
-upVs, upIs = loadFile("data/chopper/IV_230GHz_unpumped_1_35.csv"; Vcutoff = 4);#(fileName("230", "0_00"));
-DCₒ1 = parseDCₒData(upVs, upIs; cutoff = 1.4);
+plotVs, plotIs = File.filter(DC1.nVs, DC1.nIs, 0.78, 1);
 
-upVsp, upIsp =  loadFile("data/chopper/IV_230GHz_pumped_1_35.csv"; Vcutoff = 4);#(fileName("230", "0_40"));
-DC1 = parseDCData(upVsp, upIsp, DCₒ1; ν = 230.0)
+function findMaxErr(low = 0.78, high = 0.95, Wit = true)
 
-# perform impedance recovery
-fitVs, fitIs = File.filter(DC1.nVs, DC1.nIs, 1.9 / DCₒ1.Vg2, 2.47 #=2.54=# / DCₒ1.Vg2);
+	fitVs, fitIs = File.filter(DC1.nVs, DC1.nIs, low, high)#1.9 / DCₒ1.Vg2, 2.74 / DCₒ1.Vg2);
 
-nZLO, nVLO = performRecovery(DCₒ1, DC1, fitVs, fitIs);
-=#
-#=
-# example plots
-plot(DCₒ1.nVs, DCₒ1.nIs, xlims = (-2, 2), ylims = (-3, 3), linewidth = 1.5, label = "Experimental unpumped I-V curve", legend = :topleft);
-plot!(DC1.nVs, DC1.nIs, label = "Experimental pumped I-V curve" , linewidth = 1.5)
+	nZLO, nVLO = Wit ? performRecovery(DCₒ1, DC1, fitVs, fitIs) :  performRecovery2(DCₒ1, DC1, fitVs, fitIs);
 
-Myi(nVₒ) = Ip(DCₒ1, DC1, nVₒ, recover_nVω(DCₒ1, DC1, nVLO, nZLO, nVₒ));
+	Myi(nVₒ) = Ip(DCₒ1, DC1, nVₒ, recover_nVω(DCₒ1, DC1, nVLO, nZLO, nVₒ));
+	
+	plot(DC1.nVs, DC1.nIs, xlims = (0, 2), ylims = (0, 3))
+p=	plot!(DC1.nVs, Myi.(DC1.nVs), label = "Simulated")
+display(p)
 
-plot(DC1.nVs, DC1.nIs, xlims = (0, 1.3), ylims = (0, 2), linewidth = 1.5, label = "Experimental data", legend = :topleft)
-plot!([0:0.005:2;], Vₒ -> Myi(Vₒ), label = "Recovered I-V from Zemb and VLO" , linewidth = 1.5)
+	errors =  abs.(Myi.(plotVs) .- plotIs)
+
+	#plot(plotVs, errors, xlims = (0, 2), ylims = (-0.2, 0.2))
+
+	maxErr = maximum(errors)
+
+	return maxErr, nZLO, nVLO
+
+end
+
+lhs = [[0.78, 0.8], 
+[0.78, 0.81], 
+[0.78, 0.82],
+[0.78, 0.83], 
+[0.78, 0.84],
+[0.78, 0.85], 
+[0.78, 0.86],
+[0.78, 0.87], 
+[0.78, 0.88],
+[0.78, 0.89], 
+[0.78, 0.90],
+[0.78, 0.91], 
+[0.78, 0.92],
+[0.78, 0.93],
+[0.78, 0.94],
+[0.78, 0.95],
+[0.78, 0.96],
+[0.78, 0.97],
+[0.78, 0.98],
+[0.78, 0.99],
+[0.78, 1.0],
+]
+
+hs  = []
+errs = []
+nZLOs = []
+nVLOs = []
+
+for lh in lhs
+
+	try 
+		err, nZLO, nVLO = findMaxErr(lh[1], lh[2], true);
+
+		push!(hs, lh[2])
+		push!(errs, err)
+		push!(nZLOs, nZLO)
+		push!(nVLOs, nVLO)
+	catch err	
+		@show lh[2]
+	end
+
+end
 
 
+hsB  = []
+errsB = []
+nZLOsB = []
+nVLOsB = []
+
+for lh in lhs
+
+	try 
+		err, nZLO, nVLO = findMaxErr(lh[1], lh[2], false);
+
+		push!(hsB, lh[2])
+		push!(errsB, err)
+		push!(nZLOsB, nZLO)
+		push!(nVLOsB, nVLO)
+	catch err	
+		@show lh[2]
+	end
+
+end
+
+default(size = (300.449, 153.63))
+
+plot(DC1.nVs, DC1.nIs, 
+	xlims = (0, 2), 
+	ylims = (0, 3),
+	ylabel = L"I_{\mathrm{dc}}~/~I_{\mathrm{g}}",
+	xlabel = L"V_{o}~/~V_{\mathrm{g}}",
+	right_margin = 9Plots.mm,
+	legend = :topleft,
+	label = L"I_{\mathrm{dc}}^{(\mathrm{exp})}"
+	)
+
+rectangle(w, h, x, y) = Shape(x .+ [0,w,w,0], y .+ [0,0,h,h])
+
+width = (1-0.78) + 0.01;
+height = 0.58;
 
 
-df = DataFrame(CSV.File("data/chopper/lockin.csv", delim = ",", limit = 12000, header = true, types=Dict(1=>Float64, 2=>Float64, 3=>Float64)))
+plot!(rectangle(width, height, 0.77 , 0.32), 
+	opacity=.4,
+	color = :pink, 
+	label = "Error interval")
 
-Vschopper = df[!, 3];
-Ischopper = df[!, 2];
+a2 = twinx()
 
-nVsc = Vschopper / DCₒ1.Vg2;
-nIsc = Ischopper / DCₒ1.Ig2;;
-=#
+scatter!(a2, hsB, errsB,
+	 marker = :dot,
+#	linestyle = :solid,
+	ylims = (0, 0.4),
+	xlims = (0, 2),
+	legend = :right,
+	legendtitle = "Fit error",
+	legendtitlefontsize = 8,
+	ylabel = L"\operatorname{max}\,\,\left|I_{\mathrm{dc}}^{(\mathrm{fit})}-I_{\mathrm{dc}}^{(\mathrm{exp})}\right|~/~I_{\mathrm{g}}",
+	label = "Brute-force",
+	markersize = 2,
+	color = 2
+)
 
-#=
+scatter!(a2, hs, errs, marker = :dot, 
+label = "Withington",
+markersize = 2,
+#linestyle = :solid
+color = 3
+)
 
-plot(DC1.nVs, abs.(DCₒ1.nIs .- DC1.nIs), xlims = (0, 1.5), label = "From separately measured pumped/unpumped curves", legend = :topleft, ylims = (0, 0.5))
+savefig("fit error.pdf")
 
-plot!([0:0.005:2;], V -> ΔIdc(DCₒ1, DC1, V, recover_nVω(DCₒ1, DC1, nVLO, nZLO, V)), xlims = (0, 1.5), label = "From the fit");
+scatter(errs, nVLOs,
+	markersize = 3, 
+	ylabel = L"V_{\mathrm{LO}}^{\mathrm{T}}~/~V_{\mathrm{g}}",
+	xlabel = L"\operatorname{max}\,\,\left|I_{\mathrm{dc}}^{(\mathrm{fit})}-I_{\mathrm{dc}}^{(\mathrm{exp})}\right|~/~I_{\mathrm{g}}",
+	label =  L"V_{\mathrm{LO}}^{\mathrm{T}}~/~V_{\mathrm{g}}",
+	bottom_margin = 3Plots.mm,
+	right_margin =10Plots.mm,
+	ylims = (0, 0.5),
+	xlims = (0, 0.2),
+	legend = :bottomleft,
+	markershape = :cross,
+	markerstrokewidth = 5
+	)
 
-scatter!(nVsc .- 0.0853071 / DCₒ1.Vg2, nIsc ./ 10000, label = "From chopper", markersize = 2.5)
+scatter!([100], [100],  
+	label = L"\mathfrak{Re}\lbrace Z_{\mathrm{emb}}\rbrace ~/~R_{\mathrm{n}}",
+	color  =2
+)
 
-=#
+scatter!([100], [100],   
+ label = L"\mathfrak{Im}\lbrace Z_{\mathrm{emb}}\rbrace ~/~R_{\mathrm{n}}",
+	color  =3
+)
 
-#=
-plot([0:0.005:2;], V -> abs(responsivity2(DCₒ1, DC1, V, nVLO, nZLO, true)) ,linewidth = 1.5, label = "Absorbed power", legend = :topright, ylims = (0, 3));
-plot!([0:0.005:2;], V -> abs(responsivity2(DCₒ1, DC1, V, nVLO, nZLO, false)) ,linewidth = 1.5, label = "Available power");
-plot!(DC1.nVs, DC1.nIs, xlims = (0, 1.5), label = "Pumped I-V curve", line = :dash)
+a2 = twinx()
 
-hline!([1  /DC1.nVₚₕ], label = "Quantum limit")
-=#
+scatter!(a2, errs, real.(nZLOs), markersize = 2,
+ ylabel = L"Z_{\mathrm{emb}}~/~R_{\mathrm{n}}",
+ ylims = (-0.6, 0.3),
+ xticks = [],
+ color = 2,
+ xlims = (0, 0.2))
+
+scatter!(a2, errs,xticks = [], imag.(nZLOs), markersize = 2, 
+color = 3)
+
+
+savefig("error vs VLO Zemb.pdf")

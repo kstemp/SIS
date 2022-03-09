@@ -10,6 +10,7 @@ module Recovery
 
 using Printf, Roots, Optim, Currents, Data
 
+export recover_nVωs
 """
     recover_nVωs(nVs, nIs, guess = 1.0)
 
@@ -32,6 +33,7 @@ function recover_nVωs(DCₒ::DCₒData, DC::DCData, fitVs, fitIs)
 
 end
 
+export error
 """
     error(nZLO, nVs, nVωs)
 
@@ -56,6 +58,7 @@ function error(DCₒ::DCₒData, DC::DCData, nZLO, nVs, nVωs)
 
 end
 
+export find_nZLO
 """
     find_nZLO(nZLO0, nVs, nVωs)
 
@@ -67,13 +70,14 @@ function find_nZLO(DCₒ::DCₒData, DC::DCData, nZLO0, nVs, nVωs)
     
     f(x::Vector) = error(DCₒ, DC, x[1] + im * x[2], nVs, nVωs);
 
-    res = Optim.optimize(f, [real(nZLO0), imag(nZLO0)], NelderMead());
+    res = Optim.optimize(f, [0; -10.0], [5.0; 0], [0.5; -0.5],  Fminbox(NelderMead()))
     min = Optim.minimizer(res);
 
     return min[1] + im * min[2];
 
 end
 
+export recover_nVLO
 """
     recover_nVLO(nZLO, nVs, nVωs)
 
@@ -110,7 +114,7 @@ function recover_nVω(DCₒ::DCₒData, DC::DCData, nVLO, nZLO, nVₒ)
 
     Δ(nVω) = nVLO^2 - abs2(nVω + Iω(DCₒ, DC, nVₒ, nVω) * nZLO);
 
-    return find_zero(Δ, (0, 1), Bisection())
+    return find_zero(Δ, 0.5)#(0, 1), Bisection())
 
 end
 

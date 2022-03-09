@@ -11,7 +11,18 @@ module Responsivity
 using Data, Currents, Recovery
 
 export ΔIdc
+"""
+    ΔIdc(DCₒ, DC, nVₒ, nVω)
+
+"""
 ΔIdc(DCₒ, DC, nVₒ, nVω) = Ip(DCₒ, DC, nVₒ, nVω) - Idc(DCₒ, nVₒ);
+
+export ΔIdc_small
+"""
+    ΔIdc_small(DCₒ, DC, nVₒ, nVω)
+
+"""
+ΔIdc_small(DCₒ, DC, nVₒ, nVω) = 0.25 * (nVω)^2 * (Idc(DCₒ, nVₒ + DC.nVₚₕ) - 2 * Idc(DCₒ, nVₒ) + Idc(DCₒ, nVₒ - DC.nVₚₕ)) / (DC.nVₚₕ)^2;
 
 export responsivity
 """
@@ -23,7 +34,7 @@ embedding circuit.
 formulas taken from Wittington TODO check paper, 7 and 8
 
 """
-function responsivity2(DCₒ::DCₒData, DC::DCData, nVₒ, nVLO, nZLO, useAbsorbedPower = true)
+function responsivity(DCₒ::DCₒData, DC::DCData, nVₒ, nVLO, nZLO, useAbsorbedPower = true)
     
     nVω = recover_nVω(DCₒ, DC, nVLO, nZLO, nVₒ)
 
@@ -32,7 +43,7 @@ function responsivity2(DCₒ::DCₒData, DC::DCData, nVₒ, nVLO, nZLO, useAbsor
     if useAbsorbedPower
         Power = 0.5 * abs(nVω) * Id(DCₒ, DC, nVₒ, nVω); 
     else
-        Power = abs2(nVω + Iω(DCₒ, DC, nVₒ, nVω) * nZLO) / (8 * real(nZLO));
+        Power =(nVLO)^2 / (8 * real(nZLO));
     end
 
     return ΔIdc(DCₒ, DC, nVₒ, nVω) / Power;

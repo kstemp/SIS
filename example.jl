@@ -80,35 +80,16 @@ for lh in lhs
 
 end
 
-
-hsB  = []
-errsB = []
-nZLOsB = []
-nVLOsB = []
-
-for lh in lhs
-
-	try 
-		err, nZLO, nVLO = findMaxErr(lh[1], lh[2], false);
-
-		push!(hsB, lh[2])
-		push!(errsB, err)
-		push!(nZLOsB, nZLO)
-		push!(nVLOsB, nVLO)
-	catch err	
-		@show lh[2]
-	end
-
-end
+a=2
 
 default(size = (300.449, 153.63))
 
 plot(DC1.nVs, DC1.nIs, 
-	xlims = (0, 2), 
-	ylims = (0, 3),
+	xlims = (0, 1.1), 
+	ylims = (0, 2),
 	ylabel = L"I_{\mathrm{dc}}~/~I_{\mathrm{g}}",
 	xlabel = L"V_{o}~/~V_{\mathrm{g}}",
-	right_margin = 9Plots.mm,
+	right_margin = 11Plots.mm,
 	legend = :topleft,
 	label = L"I_{\mathrm{dc}}^{(\mathrm{exp})}"
 	)
@@ -118,7 +99,6 @@ rectangle(w, h, x, y) = Shape(x .+ [0,w,w,0], y .+ [0,0,h,h])
 width = (1-0.78) + 0.01;
 height = 0.58;
 
-
 plot!(rectangle(width, height, 0.77 , 0.32), 
 	opacity=.4,
 	color = :pink, 
@@ -126,25 +106,28 @@ plot!(rectangle(width, height, 0.77 , 0.32),
 
 a2 = twinx()
 
-scatter!(a2, hsB, errsB,
-	 marker = :dot,
+scatter!(a2, hs, errs,
+	 marker = :cross,
 #	linestyle = :solid,
-	ylims = (0, 0.4),
-	xlims = (0, 2),
-	legend = :right,
-	legendtitle = "Fit error",
-	legendtitlefontsize = 8,
+	ylims = (0, 0.25),
+	xlims = (0, 1.1),
+	xticks = [],
+	legend = :bottomleft,
 	ylabel = L"\operatorname{max}\,\,\left|I_{\mathrm{dc}}^{(\mathrm{fit})}-I_{\mathrm{dc}}^{(\mathrm{exp})}\right|~/~I_{\mathrm{g}}",
-	label = "Brute-force",
-	markersize = 2,
-	color = 2
+	label = "Fit error",
+	linewidth = 4,
+	color = 3
 )
 
-scatter!(a2, hs, errs, marker = :dot, 
-label = "Withington",
-markersize = 2,
-#linestyle = :solid
-color = 3
+scatter!(a2, hs, errs,
+	 marker = :cross,
+#	linestyle = :solid,
+	ylims = (0, 0.25),
+	xlims = (0, 1.1),
+	xticks = [],
+	label = "",
+	linewidth = 4,
+	color = 3
 )
 
 savefig("fit error.pdf")
@@ -187,3 +170,39 @@ color = 3)
 
 
 savefig("error vs VLO Zemb.pdf")
+
+fitZR = (real.(nZLOs))[6:13]
+fitZRe = (errs[6:13])
+
+fitZI = imag.(nZLOs)
+fitZIe = errs
+
+fitV = nVLOs[3:7]
+fitVe = errs[3:7]
+
+@. model(t, p) = p[1] + p[2] * t^2 + p[3]*t^3 + p[4]*t+ p[5]*t^4
+p0 = [0.3, 0.5, 0.2, 0.1, 0.3]
+
+fit2 = curve_fit(model,fitZIe, fitZI, p0)
+p2 = fit2.param
+
+@. model2(t, p) = p[1] + p[2] * t
+
+fit1 = curve_fit(model2,fitZRe, fitZR, p0)
+p1 = fit1.param
+
+fit3= curve_fit(model2,fitVe, fitV, p0)
+p3 = fit3.param
+
+plot!([0:0.01:1;], t -> model2(t, p3), color = 1, label = "", linewidth = 0.7)
+plot!(a2, [0:0.01:1;], t -> model2(t, p1), color = 2, label = "", linewidth = 0.7)
+plot!(a2, [0:0.01:1;], t -> model(t, p2), color = 3, label = "", linewidth = 0.7)
+
+savefig("error vs VLO Zemb.pdf")
+
+nZLO_R_opt = model2(0, p1)
+nZLO_I_opt = model(0, p2)
+nVLO_opt = model(0, p3)
+
+Myi(nVₒ) = Ip(DCₒ1, DC1, nVₒ, 
+	recover_nVω(DCₒ1, DC1, nVLO_opt, nZLO_R_opt + im * nZLO_I_opt, nVₒ));

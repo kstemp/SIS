@@ -1,0 +1,52 @@
+* 1st slide - give an "abstract", talk about tunnelling and impedance recovery, start with something, finish with something
+
+* the main idea: CALCULATE SENSITIVITY which is decided by the responsivity, in order to measure it, we need to use a real circuit - so we need to know what is the embedding circuit
+
+* Slide about TES - what's the output? voltage current DC signal
+
+* heterodyne detectors: Call signal \nu RF , make clear IF signal is the difference
+
+
+* make a point that the I-V
+
+
+* explain more clearly why are we doing the impedance recovery. Should say impedance recovery is improtant for RESPONSIVITY!
+
+* talk that "We want to calculate embedding impedance as an unknown". I'm going ot use the measured pumped I-V curve and compare it with the simulated pumped I-V curve. 
+
+* TOO SHORT about the responsivity. Give one definition perhaps? of the power. Alternatively, explain which responsivity is ideal and which is not. 
+
+* REMOVE NEP completely - not enough time!!!!!!!
+
+* talk that \Delta Idc it's what responsivity is proportional to.  
+
+* cut out at least 25 % of slides - time was 40:30 , maybe even a half
+
+* just define what the AC tunelling current is
+
+* Niobium critical temperature - can't use 9 kelvin, need 8, 7 kelvin, 4 kelvin is standard. Ghassan did a similar measurement at 300 mK.
+
+* heating and proximity effct - don't use these words, don' say heating effect or proximity effect
+
+* Delete the absolute value from the slide 31 - delete absolute value from Re Z, Im Z. 
+
+* It's rotated at 100 Hz, but it's CHOPPED at like 100/5 (because of the window opening/closing)
+
+
+* slide 10, there should be some caivty showing empty states on the RHS
+
+* Cooper pair binding energy 2Delta, Delta falls for each quasiparticle. Quasiparticle is basically a fancy name for an electron
+
+* tunnel from left to right into a favourable energy states
+
+* please put numbers in the slides - 
+
+* with SIS mixers - important - they can be used to do INTERFEROMETRY with telescopes. Biggest advantage of SIS technology compared to direct detectors. Interferometry allows us for much greater resolution.  - maybe don't include it because it doesnt' completely apply
+
+* slide 9 - two possible slopes for the normal resistance. Fabrication artifact, group cannot explain yet. The artifacts related to structure of the aluminium, holes in the material...
+
+* normal part - all Cooper pairs are broken
+
+* SNIS - don't mention this in the talk, really confusing.
+
+* is there  something in our junctions that makes the wider fit interval better? Or is it a phenomenon more generic and intrinsic to all SIS technology

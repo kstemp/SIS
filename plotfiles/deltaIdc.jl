@@ -35,42 +35,12 @@ scatter!(nVsc, nIsc ./ 10000, label = "Lock-in", markersize = 1.5)
 
 savefig("09 Delta Idc comparison.pdf")
 
-
-function responsivity(DCₒ::DCₒData, DC::DCData, nVₒ, nVLO, nZLO, useAbsorbedPower = true)
-    
-    nVω = recover_nVω(DCₒ, DC, nVLO, nZLO, nVₒ)
-
-    Power = 0;
-
-    if useAbsorbedPower
-        Power = 0.5 * abs(nVω) * Id(DCₒ, DC, nVₒ, nVω); 
-    else
-        Power =(nVLO)^2 / (8 * real(nZLO));
-    end
-
-    return ΔIdci(nVₒ) / Power;
-
-end
-
-function NEP(DCₒ::DCₒData, DC::DCData, nVₒ, nVLO, nZLO)
-
-	R = responsivity(DCₒ, DC, nVₒ, nVLO, nZLO, false);
-
-    return sqrt(Idc(DCₒ, nVₒ)) / R;
-
-end
-
 plot([0.1:0.01:1.7;], V -> abs(responsivity(DCₒ1, DC1, V, nVLO, nZLO, true)) , label = "Absorbed", legend = :topleft,  xlims = (0, 1.5), ylims = (0, 3), xlabel = L"$V_o~/~V_{\mathrm{g}}$", ylabel= L"$|\Delta I_{\mathrm{dc}}|~/~P$");
 plot!([0.1:0.01:1.7;], V -> abs(responsivity(DCₒ1, DC1, V, nVLO * 0.8, nZLO, false)) , label = "Available")
 plot!(DC1.nVs, DC1.nIs, label = L"$I_{\mathrm{dc}}$", line = :dash, linewidth = 0.7)
 #hline!([1  /DC1.nVₚₕ], label = "")
 savefig("10 responsivities.pdf")
 
-plot([0.1:0.01:1.7;], V -> abs(responsivity(DCₒ1, DC1, V, nVLO * 0.8, nZLO, false)),  label = "Responsivity",  xlabel = L"$V_o~/~V_{\mathrm{g}}$", right_margin = 5Plots.mm, xlims = (0, 1.5), ylims = (0, 3), ylabel = "Responsivity")
-plot!([], [], color = 2, label = "NEP")
-plot!(twinx(), [0.75:0.01:1.25;], V -> NEP(DCₒ1, DC1, V, nVLO, nZLO) , legend = false, xticks = [], ylabel= "NEP [arbitrary units]", color = 2)
-
-savefig("11 NEP.pdf")
 
 
 plot([0:0.01:2;], V -> abs(ΔIdc(DCₒ1, DC1, V, recover_nVω(DCₒ1, DC1, nVLO, nZLO, V))), xlims = (0, 1.5), ylims = (0, 0.5), label = L"$|I_{\mathrm{dc}}-I_{\mathrm{dc}}^o|$", legend = :topleft)

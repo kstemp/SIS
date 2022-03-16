@@ -35,26 +35,26 @@ plot!([0:0.01:2;],  V -> abs(Ir(DCₒ1, DC1, V, DC1.nVₚₕ)), label = L"$|\mat
 
 savefig("07 Ir Id.pdf")
 
-fitVs, fitIs = File.filter(DC1.nVs, DC1.nIs, 2.1 / DCₒ1.Vg2, 2.54 / DCₒ1.Vg2);
+fitVs, fitIs = File.filter(DC1.nVs, DC1.nIs, 2.1 / DCₒ1.Vg2, 1);
 
 nZLO, nVLO = performRecovery(DCₒ1, DC1, fitVs, fitIs);
 
-nVω(nVₒ)  recover_nVω(DCₒ1, DC1, nVLO, nZLO, nVₒ)
+nVω(nVₒ) = recover_nVω(DCₒ1, DC1, nVLO, nZLO, nVₒ)
 
 Myi(nVₒ, nZLO, nVLO) = Ip(DCₒ1, DC1, nVₒ, recover_nVω(DCₒ1, DC1, nVLO, nZLO, nVₒ));
-plot(DC1.nVs, DC1.nIs, xlims = (0, 2), ylims = (0, 3))#,  label = "Experimental", legend = :topleft, xlabel = L"$V_o~/~V_{\mathrm{g}}$", ylabel= L"$I_{\mathrm{dc}}~/~I_{\mathrm{g}}$")
+plot(DC1.nVs, DC1.nIs, xlims = (0, 2), ylims = (0, 3),  label = "Experimental", legend = :topleft, xlabel = L"$V_o~/~V_{\mathrm{g}}$", ylabel= L"$I_{\mathrm{dc}}~/~I_{\mathrm{g}}$")
 plot!([0:0.01:2;], Vₒ -> Myi(Vₒ, nZLO, nVLO), label = "Simulated" )
 
 rectangle(w, h, x, y) = Shape(x .+ [0,w,w,0], y .+ [0,0,h,h])
 
-width = (2.54-2.1) / DCₒ1.Vg2;
-height = 0.3;
+width = (DCₒ1.Vg2-2.1) / DCₒ1.Vg2;
+height = 0.4;
 
 plot!(rectangle(width, height ,2.1 / DCₒ1.Vg2, 0.25), opacity=.4, color = :pink, label = "Fit interval")
 
 annotate!(1.4,1.4,text(L"$\nu=230$ GHz", plot_font, 7))
-annotate!(1.35,0.9,text(L"$\hat V_{\mathrm{LO}}^{\mathrm{T}}=0.39$", plot_font, 7))
-annotate!(1.5,0.4,text(L"$\hat Z_{\mathrm{emb}}=0.15-0.19i$", 7))
+annotate!(1.35,0.9,text(L"$\hat V_{\mathrm{LO}}^{\mathrm{T}}=0.31$", plot_font, 7))
+annotate!(1.5,0.4,text(L"$\hat Z_{\mathrm{emb}}=0.05-0.06i$", 7))
 
 savefig("08 fit.pdf")
 

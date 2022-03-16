@@ -16,7 +16,7 @@ function doplot(d)
 
     nZLO, nVLO = performRecovery(DCₒ1, DC1, fitVs, fitIs);
 
-   p =plot!(DCₒ1.nVs, DC1.nIs .- DCₒ1.nIs, xlims = (0, 2), label = latexstring(L"\hat V_{\mathrm{LO}} = ", d[2]))
+   p =plot!(DCₒ1.nVs, abs.(DC1.nIs .- DCₒ1.nIs), label = d[2])
    display(p)
 
 end
@@ -27,15 +27,19 @@ plot(
 #legendtitle = L"V_{\mathrm{LO}}^{\mathrm{T}}~/~V_{\mathrm{g}}", 
 #legendtitlefontsize = 8,
 xlabel = L"$V_o~/~V_{\mathrm{g}}$",
-ylabel = L"$\Delta I_{\mathrm{dc}}~/~I_{\mathrm{g}}$",
-ylims = (-0.2, 0.2),
-xlims = (0,2),
-legend = :outerright
+ylabel = L"$\left|\Delta I_{\mathrm{dc}}\right|~/~I_{\mathrm{g}}$",
+ylims = (-0.005, 0.21),
+yticks = [0:0.05:0.2;],
+xlims = (0,1.5),
+legend = :outerright,
+legendtitlefontsize = 8,
+legendtitle = L"V_{\rm{LO}}^{\rm T}~/~V_{\mathrm{g}}"
 )
 
 
-plot!(DCₒ1.nVs, DCₒ1.nIs, label = "Leakage", line = :dash)
 doplot.([["0_30", "0.25"], ["0_20", "0.12"], ["0_10", "0.06"]])
+plot!(DCₒ1.nVs, DCₒ1.nIs, label = "Leakage", line = :dash)
+
 
 savefig("Delta Idc low driving.pdf")
 
